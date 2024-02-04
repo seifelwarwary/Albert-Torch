@@ -1,7 +1,6 @@
-import torch.nn.functional as F
-from datasets import load_dataset
+
+
 import torch.nn as nn
-import torch.nn.functional as F
 import torch
 
 from transformers import AutoTokenizer
@@ -27,7 +26,8 @@ class AlbertEmbedding(nn.Module):
         pos_embedding=self.pos_embedding(p)
         token_type_embedding=self.token_type_embedding(token_type_ids)
         embedding=self.layer_norm(input_embedding+pos_embedding+token_type_embedding)
-        embedding=torch.masked_fill(embedding,attention_mask.unsqueeze(-1)==0,0)
+        embedding=embedding.masked_fill_(attention_mask.unsqueeze(-1)==0,0)
+        
         return embedding    
 
 class AlbertNSPHead(nn.Module):
@@ -88,7 +88,7 @@ class AlbertModel(nn.Module):
 
         return y1,y2
 
-    
+
 def test():
     tokenizer=AutoTokenizer.from_pretrained("albert/albert-base-v2")
 
@@ -105,47 +105,7 @@ def test():
 
 
 
-''' 
-
-AlbertModel(
-  (embeddings): AlbertEmbeddings(
-    (word_embeddings): Embedding(30000, 128, padding_idx=0)
-    (position_embeddings): Embedding(512, 128)
-    (token_type_embeddings): Embedding(2, 128)
-    (LayerNorm): LayerNorm((128,), eps=1e-12, elementwise_affine=True)
-    (dropout): Dropout(p=0, inplace=False)
-  )
-  (encoder): AlbertTransformer(
-    (embedding_hidden_mapping_in): Linear(in_features=128, out_features=768, bias=True)
-    (albert_layer_groups): ModuleList(
-      (0): AlbertLayerGroup(
-        (albert_layers): ModuleList(
-          (0): AlbertLayer(
-            (full_layer_layer_norm): LayerNorm((768,), eps=1e-12, elementwise_affine=True)
-            (attention): AlbertAttention(
-              (query): Linear(in_features=768, out_features=768, bias=True)
-              (key): Linear(in_features=768, out_features=768, bias=True)
-              (value): Linear(in_features=768, out_features=768, bias=True)
-              (attention_dropout): Dropout(p=0, inplace=False)
-              (output_dropout): Dropout(p=0, inplace=False)
-              (dense): Linear(in_features=768, out_features=768, bias=True)
-              (LayerNorm): LayerNorm((768,), eps=1e-12, elementwise_affine=True)
-            )
-            (ffn): Linear(in_features=768, out_features=3072, bias=True)
-            (ffn_output): Linear(in_features=3072, out_features=768, bias=True)
-            (activation): NewGELUActivation()
-            (dropout): Dropout(p=0, inplace=False)
-          )
-        )
-      )
-    )
-  )
-  (pooler): Linear(in_features=768, out_features=768, bias=True)
-  (pooler_activation): Tanh()
-)
-
-'''
 
 
-# test()
+test()
     
